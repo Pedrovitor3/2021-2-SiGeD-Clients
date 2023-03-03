@@ -1,0 +1,27 @@
+name: CD
+
+on:
+  push:
+    branches: [ master ] 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Deploy to Digital Ocean
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASSWORD }}
+        script: |
+          cd 2021-2-SiGeD-Clients
+          docker-compose down
+          git checkout .env
+          git checkout master
+          git pull origin master -f
+          cp deploy.env .env
+          docker network create siged_backend
+          docker-compose up --build -d
+
